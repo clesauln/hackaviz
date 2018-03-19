@@ -1,10 +1,24 @@
 <!DOCTYPE html>
+
+<head>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-colors.v1.min.js"></script>
 <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-<head>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+
+        }
+
+        h1,h3 {
+            text-align:center;
+        }
+
+        h2 {
+            border-bottom: 1px solid gray;
+        }
         .block_visu1 img {
             float:left;
             width: 700px;
@@ -58,7 +72,7 @@
         <svg height=500 width=450 id="chart_age_votes_macron"></svg>
     </div>
     <div id="block_chart_2">
-            <svg height=600 width=450 id="chart_densite_votes_lepen"></svg>
+            <svg height=600 width=850 id="chart_densite_votes_lepen"></svg>
             <svg height=500 width=450 id="chart_densite_votes_macron"></svg>
     </div> 
 
@@ -363,10 +377,10 @@ var data3 = d3.nest()
         width3 = +svg3.attr("width") - margin.left - margin.right,
         height3 = +svg3.attr("height") - margin.top - margin.bottom;
              
-        var x3= d3.scaleLinear().domain([10, 50, 200, 500, 1000, 2000, 4800])
-        .range([ 0, 450]);
+        var x3= d3.scaleLinear().domain([10,4800])
+        .range([ 0, 850]);
           
-        var y3 = d3.scaleLinear().rangeRound([height, 0]);
+        var y3 = d3.scaleLinear().rangeRound([height3, 0]);
         
         y3.domain([0,d3.max(data3, function(data){
             return data.value
@@ -381,7 +395,7 @@ var data3 = d3.nest()
 
         gchart_density_1.append("g")
             .attr("class", "axis axis--x")
-            .attr("transform", "translate(0," + 540 + ")")
+            .attr("transform", "translate(30," + height3 + ")")
             .call(xAxis);
         
         var yAxis3 = d3.axisLeft()
@@ -390,6 +404,8 @@ var data3 = d3.nest()
         gchart_density_1.append("g")
             .attr("class", "axis axis--y")
             .call(yAxis3)
+            .attr("transform", "translate(30," + 0 + ")")
+
             .append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 6)
@@ -411,11 +427,12 @@ var data3 = d3.nest()
             .data(data3)
             .enter().append("circle")
             .attr("class", "circle-density")
-            .attr("cx", function(data3) {  return x3(Math.round(data3.key)); })
-            .attr("cy", function(data3) { console.log(y(data3.value)); return y3(Math.round(data3.value)); })
+            .attr("cx", function(data3) { console.log(x3(data3.key)); return (x3(Math.round(data3.key))*100)+100; })
+            .attr("cy", function(data3) {  return y3(Math.round(data3.value)); })
             .attr("r", function(data3){ return y3(Math.round(data3.value))/10})
-            .style("opacity", function(data3) {
-                (y3(Math.round(data3.value))/1000 + 0.5) })
+            .style("fill-opacity", // set the fill opacity
+ function(data3) {
+                return y3(Math.round(data3.value))/1000 })
             .transition()
 
     })
