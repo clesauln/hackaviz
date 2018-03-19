@@ -1,0 +1,27 @@
+ndjson-map -r d3 '(d.properties.fill = d3.scaleSequential(d3.interpolateViridis).domain([0, 4000])(d.properties.density), d)' < occitanie-density.ndjson  > occitanie-color.ndjson
+
+
+ ndjson-map -r d3 -r d3=d3-scale-chromatic 'z = d3.scaleThreshold().domain([1, 10, 50, 200, 500, 1000 2000, 4800]).range(d3.schemeOrRd[9]), d.properties.fill =  z(d.properties.density), d' < occitanie-density.ndjson > density.ndjson 
+  ndjson-map -r d3 -r d3=d3-scale-chromatic 'z = d3.scaleOrdinal().domain(["LE PEN", "MÉLENCHON","MACRON","FILLON","DUPONT-AIGNAN","ASSELINEAU",
+  "LASSALLE","HAMON"]).range(d3.schemeSet1), d.properties.fill =  z(d.properties.votes1.nom), d' < occitanie-density-votes-1.ndjson > votes1.ndjson 
+ 
+ geo2svg -n --stroke none -p 1 -w 960 -h 960 < density.ndjson > occitanie-color.svg
+
+
+ ndjson-map 'd.properties = {density: Math.floor(d[0].population_2014 / d[0].superficie)}, d[0]' < occitanie.ndjson > occitanie-density.ndjson
+
+
+ ndjson-map 'd.properties = {votes1: {nom: d.properties.P_2017_1T_cand_1er_Nom, voix: d.properties.P_2017_1T_cand_1er_Voix},
+ density: Math.floor(d.properties.population_2014 / d.properties.superficie)}, d' < occitanie.ndjson > occitanie-density-votes-1.ndjson
+
+P_2017_1T_cand_1er_% Voix/Exp
+P_2017_1T_cand_1er_Nom 
+
+Votes1er:    { nom:, pourcentage: }
+
+> Moyenne age / commune
+    Population / commune
+
+    Resultat premier tour | resultat second tour presidentiel
+
+    Typologie commune
