@@ -29,23 +29,23 @@
         .block_visu1 {
             clear: both;
             clear: both;
-    width: 1300px;
-    height: 660px;
+            width: 1300px;
+            height: 660px;
         }
        
-        #block_chart_1 {
-            height: 500px;
+        #block_chart_1, #block_chart_2  {
+            height: 590px;
             width: 1600px;
             margin-top: 40px;
         }
-        #block_chart_1 svg {
+        #block_chart_1 svg, #block_chart_2 svg  {
             display: table-cell;
             width:530px;
-            height: 490px;
+            height: 590px;
 
             padding:10px;
         }
-        #block_chart_1 svg:first-child {
+        #block_chart_1 svg:first-child , #block_chart_2 svg:first-child {
              float:left
         }
 
@@ -73,7 +73,7 @@
     </div>
     <div id="block_chart_2">
             <svg height=600 width=850 id="chart_densite_votes_lepen"></svg>
-            <svg height=500 width=450 id="chart_densite_votes_macron"></svg>
+            <svg height=600 width=850 id="chart_densite_votes_macron"></svg>
     </div> 
 
     <script>
@@ -81,7 +81,8 @@
     var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
-    
+    var colors = d3.scaleThreshold().domain([10,20,30,40,60]).range(["#d6d578","#dab94f","#dc9f25","#dc7525","#823a02"]);
+
     var legend_1er_tour = d3.select("#legend_1er_tour");
     var candidats_1er = d3.scaleOrdinal()
     .domain(["LE PEN", "MÉLENCHON","MACRON","FILLON","DUPONT-AIGNAN","ASSELINEAU","LASSALLE","HAMON"])
@@ -361,24 +362,23 @@ var data = d3.nest()
        //votes par densité communes //
 
 var data3 = d3.nest()
-             .key(function(d) {  console.log(d.population_2014) ; var density = Math.floor(d.population_2014 / (d.superficie/10)); console.log(density);return density;})
+             .key(function(d) {  var density = Math.floor(d.population_2014 / (d.superficie/100)); return density;})
              .rollup(function(d,i){
                  return (d3.sum(d, function(v){ return v.Voix_LePen} ) / d.length);
              })
              .entries(datacsv);
  
     
-        
      
-        
+
         var svg3 = d3.select("#chart_densite_votes_lepen"),
         margin = {top: 20, right: 20, bottom: 40, left: 40},
 
         width3 = +svg3.attr("width") - margin.left - margin.right,
         height3 = +svg3.attr("height") - margin.top - margin.bottom;
              
-        var x3= d3.scaleLinear().domain([10,4800])
-        .range([ 0, 850]);
+        var x3= d3.scaleLinear().domain([0,4800])
+        .range([ 0, 550]);
           
         var y3 = d3.scaleLinear().rangeRound([height3, 0]);
         
@@ -396,7 +396,8 @@ var data3 = d3.nest()
         gchart_density_1.append("g")
             .attr("class", "axis axis--x")
             .attr("transform", "translate(30," + height3 + ")")
-            .call(xAxis);
+            .attr("width",1500)
+            .call(d3.axisBottom(x3));
         
         var yAxis3 = d3.axisLeft()
                 .scale(y3);
@@ -427,14 +428,90 @@ var data3 = d3.nest()
             .data(data3)
             .enter().append("circle")
             .attr("class", "circle-density")
-            .attr("cx", function(data3) { console.log(x3(data3.key)); return (x3(Math.round(data3.key))*100)+100; })
+            .attr("cx", function(data3) { return (x3(Math.round(data3.key))+50); })
             .attr("cy", function(data3) {  return y3(Math.round(data3.value)); })
-            .attr("r", function(data3){ return y3(Math.round(data3.value))/10})
+            .attr("r", function(data3){ return y3(Math.round(data3.value))/20})
             .style("fill-opacity", // set the fill opacity
  function(data3) {
                 return y3(Math.round(data3.value))/1000 })
+            .style("fill", function(data3,i) { console.log(data3.value); return colors(data3.value); })
             .transition()
 
+        var data4= d3.nest()
+             .key(function(d) {  var density = Math.floor(d.population_2014 / (d.superficie/100)); return density;})
+             .rollup(function(d,i){
+                 return (d3.sum(d, function(v){ return v.Voix_Macron} ) / d.length);
+             })
+             .entries(datacsv);
+ 
+    
+     
+
+        var svg4 = d3.select("#chart_densite_votes_macron"),
+        margin = {top: 20, right: 20, bottom: 40, left: 40},
+        width4 = +svg4.attr("width") - margin.left - margin.right,
+        height4 = +svg4.attr("height") - margin.top - margin.bottom;
+    
+             
+        var x4= d3.scaleLinear().domain([0,4800])
+        .range([ 0, 550]);
+          
+        var y4= d3.scaleLinear().rangeRound([height4, 0]);
+        
+        y4.domain([0,d3.max(data4, function(data){
+            return data.value
+        })]);
+
+         var gchart_density_2 = svg4.append("g")
+        .attr("class", "key")
+        .attr("transform", "translate(0,40)");
+        
+        var xAxis = d3.axisBottom()
+        .scale(x4);
+
+        gchart_density_2.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", "translate(30," + height4 +")")
+            .attr("width",1500)
+            .call(d3.axisBottom(x4));
+        
+        var yAxis4 = d3.axisLeft()
+                .scale(y4);
+        
+        gchart_density_2.append("g")
+            .attr("class", "axis axis--y")
+            .call(yAxis4)
+            .attr("transform", "translate(30,0)")
+
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "end");
+        
+        gchart_density_2.append("text")
+        .attr("class", "caption")
+        .attr("x", x4.range()[0])
+        .attr("y", -6)
+        .attr("fill", "#000")
+        .attr("text-anchor", "start")
+        .attr("font-weight", "bold")
+        .text("Votes Macron / Densité population");
+        
+
+        
+        gchart_density_2.selectAll(".circle")
+            .data(data4)
+            .enter().append("circle")
+            .attr("class", "circle-density")
+            .attr("cx", function(data4) { return (x4(Math.round(data4.key))+50); })
+            .attr("cy", function(data4) {  return y4(Math.round(data4.value)); })
+            .attr("r", function(data4){ return y4(Math.round(data4.value))/10})
+            .style("fill-opacity", // set the fill opacity
+ function(data4) {
+                return y4(Math.round(data4.value))/1000 })
+            .style("fill", function(data4,i) { console.log(data4.value); return colors(data4.value); })
+            .transition()
     })
    </script>
 </body>
