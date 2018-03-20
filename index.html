@@ -74,6 +74,8 @@
     <div id="block_chart_2">
             <svg height=600 width=850 id="chart_densite_votes_lepen"></svg>
             <svg height=600 width=850 id="chart_densite_votes_macron"></svg>
+            <svg id="legend_2" width="860" height="500"></svg>
+
     </div> 
 
     <script>
@@ -81,7 +83,7 @@
     var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
-    var colors = d3.scaleThreshold().domain([10,20,30,40,60]).range(["#d6d578","#dab94f","#dc9f25","#dc7525","#823a02"]);
+    var colors_vote = d3.scaleThreshold().domain([10,20,30,40,60,80,90]).range(["#d6d578","#dab94f","#dc9f25","#dc7525","#823a02","#b55200","#d61507"]);
 
     var legend_1er_tour = d3.select("#legend_1er_tour");
     var candidats_1er = d3.scaleOrdinal()
@@ -160,17 +162,7 @@
     .select(".domain")
     .remove();
 
-    //bar chart elections 1er tour moyenne age//
-    var svg = d3.select("#chart_age_votes_lepen"),
-    margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom;
-
-
-    var g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    var x,y ;
+    
 
     d3.csv("src/TDV_hackaviz_2018.csv", function(data){
        data.ageAverage = +data.moyenne_HF_2014;
@@ -192,25 +184,35 @@ var data = d3.nest()
  
     
         
-        x= d3.scaleLinear().domain([20,85])
+       //bar chart elections 1er tour moyenne age//
+    var svg1 = d3.select("#chart_age_votes_lepen"),
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width1 = +svg.attr("width") - margin.left - margin.right,
+    height1 = +svg.attr("height") - margin.top - margin.bottom;
+
+
+    var gchart_1 = svg1.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var x1,y1 ; 
+    x1= d3.scaleLinear().domain([20,85])
             .range([0,450]);
           
-        var y = d3.scaleLinear().rangeRound([height, 0]);
+    y1 = d3.scaleLinear().rangeRound([500,0]);
         
-        y.domain([0,d3.max(data, function(data){
+    y1.domain([0,d3.max(data, function(data){
             return data.value
         })]);
-        
 
-        g.append("g")
+        gchart_1.append("g")
             .attr("class", "axis axis--x")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+            .attr("transform", "translate(2,"+ 500+" )")
+            .call(d3.axisBottom(x1));
         
         var yAxis = d3.axisLeft()
-                .scale(y);
+                .scale(y1);
 
-        g.append("g")
+        gchart_1.append("g")
             .attr("class", "axis axis--y")
             .call(yAxis)
             .append("text")
@@ -219,126 +221,69 @@ var data = d3.nest()
             .attr("dy", "0.71em")
             .attr("text-anchor", "end");
         
-        g.append("text")
+        gchart_1.append("text")
         .attr("class", "caption")
-        .attr("x", x.range()[0])
+        .attr("x", x1.range()[0])
         .attr("y", -6)
         .attr("fill", "#000")
         .attr("text-anchor", "start")
         .attr("font-weight", "bold")
         .text("Votes Le Pen / Moyenne âge par communes");
 
-        g.selectAll(".bar")
+        gchart_1.selectAll(".bar")
             .data(data)
             .enter().append("rect")
             .attr("class", "bar")
-            .attr("x", function(data) {  return x(Math.round(data.key)); })
-            .attr("y", function(data) {  return y(Math.round(data.value)); })
+            .attr("x", function(data) {  return x1(Math.round(data.key)); })
+            .attr("y", function(data) {  return y1(Math.round(data.value)); })
             .attr("width", 20)
             .style("fill", function(d, i) { return color; })
 
-            .attr("height", function(data) { return height - y(Math.round(data.value));  });
+            .attr("height", function(data) { return height - y1(Math.round(data.value));  });
 
 
-        var data = d3.nest()
-            .key(function(d) { return d.moyenne_HF_2014;})
-            .rollup(function(d,i){
-                return (d3.sum(d, function(v){ return v.Voix_LePen} ) / d.length);
-            })
-            .entries(datacsv);
-
-    
-        
-        x= d3.scaleLinear().domain([20,85])
-            .range([0,450]);
-          
-        var y = d3.scaleLinear().rangeRound([height, 0]);
-        
-        y.domain([0,d3.max(data, function(data){
-            return data.value
-        })]);
-        
-
-        g.append("g")
-            .attr("class", "axis axis--x")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
-        
-        var yAxis = d3.axisLeft()
-                .scale(y);
-
-        g.append("g")
-            .attr("class", "axis axis--y")
-            .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", "0.71em")
-            .attr("text-anchor", "end");
-        
-        g.append("text")
-        .attr("class", "caption")
-        .attr("x", x.range()[0])
-        .attr("y", -6)
-        .attr("fill", "#000")
-        .attr("text-anchor", "start")
-        .attr("font-weight", "bold")
-        .text("Votes Le Pen / Moyenne âge par communes");
-
-        g.selectAll(".bar")
-            .data(data)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", function(data) {  return x(Math.round(data.key)); })
-            .attr("y", function(data) { return y(Math.round(data.value)); })
-            .attr("width", 20)
-            .style("fill", function(d, i) { return color; })
-
-            .attr("height", function(data) { return height - y(Math.round(data.value));  });
-        
        
-            var data2 = d3.nest()
-            .key(function(d) { return d.moyenne_HF_2014;})
-            .rollup(function(d,i){
-                return (d3.sum(d, function(v){ return v.Voix_Macron} ) / d.length);
-            })
-            .entries(datacsv);
+    var data2 = d3.nest()
+    .key(function(d) { return d.moyenne_HF_2014;})
+    .rollup(function(d,i){
+        return (d3.sum(d, function(v){ return v.Voix_Macron} ) / d.length);
+    })
+    .entries(datacsv);   
 
+    var svg2 = d3.select("#chart_age_votes_macron"),
+    margin2 = {top: 20, right: 20, bottom: 30, left: 20},
+    width2 = +svg2.attr("width") - margin2.left - margin2.right,
+    height2 = +svg2.attr("height") - margin2.top - margin2.bottom;
+
+    console.log(d3.max(data2, function(d){if(d.value > 70) {console.log(d)}}))
+    var x2,y2 ; 
+    x2= d3.scaleLinear().domain([20,85])
+            .range([0,500]);
           
-        var x2= d3.scaleLinear().domain([20,85])
-            .range([0,450]);
-          
-        var y2 = d3.scaleLinear().rangeRound([height, 0]);
+    y2 = d3.scaleLinear().rangeRound([500, 0]);
         
-        y2.domain([0,d3.max(data2, function(data){
+    y2.domain([0,d3.max(data2, function(data){
             return data.value
         })]);
-        
-        var svg2 = d3.select("#chart_age_votes_macron"),
-        margin2 = {top: 20, right: 20, bottom: 30, left: 20},
-        width2 = +svg2.attr("width") - margin2.left - margin2.right,
-        height2 = +svg2.attr("height") - margin2.top - margin2.bottom;
-
-
-    var gchart = svg2.append("g")
+    var gchart_2 = svg2.append("g")
     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-        gchart.append("g")
-            .attr("class", "axis axis--x")
-            .attr("transform", "translate(0," + height2 + ")")
-            .call(d3.axisBottom(x));
-        
-        var yAxis2 = d3.axisLeft()
-                .scale(y2);
-                
-        gchart.append("g")
-            .attr("class", "axis axis--y")
-            .call(yAxis2)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", "0.71em")
-            .attr("text-anchor", "end")
-            gchart.append("text")
+    gchart_2.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(2," + 500+ ")")
+        .call(d3.axisBottom(x2));
+    
+    var yAxis2 = d3.axisLeft()
+            .scale(y2);
+            
+    gchart_2.append("g")
+        .attr("class", "axis axis--y")
+        .call(yAxis2)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+    gchart_2.append("text")
         .attr("class", "caption")
         .attr("x", x2.range()[0])
         .attr("y", -6)
@@ -348,16 +293,16 @@ var data = d3.nest()
         .text("Votes Macron / Moyenne âge par communes");
        
 
-        gchart.selectAll(".bar")
-            .data(data2)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", function(data2) {  return x2(Math.round(data2.key)); })
-            .attr("y", function(data2) {  return y2(Math.round(data2.value)); })
-            .attr("width", 20)
-            .style("fill", function(data2) { return color; })
+    gchart_2.selectAll(".bar")
+        .data(data2)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(data2) {  return x2(Math.round(data2.key)); })
+        .attr("y", function(data2) {  return y2(Math.round(data2.value)); })
+        .attr("width", 20)
+        .style("fill", function(data2) { return color; })
 
-            .attr("height", function(data2) { return height2 - y2(Math.round(data2.value));  });
+        .attr("height", function(data2) { return 500 - y2(Math.round(data2.value));  });
        
        //votes par densité communes //
 
@@ -416,7 +361,7 @@ var data3 = d3.nest()
         gchart_density_1.append("text")
         .attr("class", "caption")
         .attr("x", x3.range()[0])
-        .attr("y", -6)
+        .attr("y", -30)
         .attr("fill", "#000")
         .attr("text-anchor", "start")
         .attr("font-weight", "bold")
@@ -430,11 +375,11 @@ var data3 = d3.nest()
             .attr("class", "circle-density")
             .attr("cx", function(data3) { return (x3(Math.round(data3.key))+50); })
             .attr("cy", function(data3) {  return y3(Math.round(data3.value)); })
-            .attr("r", function(data3){ return y3(Math.round(data3.value))/20})
+            .attr("r", function(data3){ return (Math.round(data3.value))/4})
             .style("fill-opacity", // set the fill opacity
  function(data3) {
-                return y3(Math.round(data3.value))/1000 })
-            .style("fill", function(data3,i) { console.log(data3.value); return colors(data3.value); })
+                return (Math.round(data3.value))/300 })
+            .style("fill", function(data3,i) { (data3.value); return colors_vote(data3.value); })
             .transition()
 
         var data4= d3.nest()
@@ -453,9 +398,10 @@ var data3 = d3.nest()
         height4 = +svg4.attr("height") - margin.top - margin.bottom;
     
              
-        var x4= d3.scaleLinear().domain([0,4800])
-        .range([ 0, 550]);
-          
+        var x4= d3.scaleLinear()
+        .range([ 0, 450]);
+
+        x4.domain([1,5020]);
         var y4= d3.scaleLinear().rangeRound([height4, 0]);
         
         y4.domain([0,d3.max(data4, function(data){
@@ -492,7 +438,7 @@ var data3 = d3.nest()
         gchart_density_2.append("text")
         .attr("class", "caption")
         .attr("x", x4.range()[0])
-        .attr("y", -6)
+        .attr("y", -30)
         .attr("fill", "#000")
         .attr("text-anchor", "start")
         .attr("font-weight", "bold")
@@ -504,14 +450,55 @@ var data3 = d3.nest()
             .data(data4)
             .enter().append("circle")
             .attr("class", "circle-density")
-            .attr("cx", function(data4) { return (x4(Math.round(data4.key))+50); })
+            .attr("cx", function(data4) { if(data4.key > 4000 ) { (x4(Math.floor(data4.key))); } return x4(Math.floor(data4.key))+50; })
             .attr("cy", function(data4) {  return y4(Math.round(data4.value)); })
-            .attr("r", function(data4){ return y4(Math.round(data4.value))/10})
+            .attr("r", function(data4){ return (Math.round(data4.value))/4})
             .style("fill-opacity", // set the fill opacity
  function(data4) {
-                return y4(Math.round(data4.value))/1000 })
-            .style("fill", function(data4,i) { console.log(data4.value); return colors(data4.value); })
+                return (Math.round(data4.value))/300 })
+            .style("fill", function(data4,i) { return colors_vote(data4.value); })
             .transition()
+
+    //legende densité/votes
+
+    var svg5 = d3.select("#legend_2"); 
+    var x5 = d3.scaleLinear()
+        .domain([1, 90])
+        .range([1, 500]);
+
+  
+    
+    var g_legend2 = svg5.append("g")
+        .attr("class", "key")
+        .attr("transform", "translate(0,40)");
+       
+    g_legend2.selectAll("rect")
+        .data(colors_vote.range().map(function(d) {
+            d = colors_vote.invertExtent(d);
+            if (d[0] == null) d[0] = x5.domain()[0];
+            if (d[1] == null) d[1] = x5.domain()[1];
+            return d;
+        }))
+        .enter().append("rect")
+        .attr("height", 8)
+        .attr("x", function(d) { return x5(d[0]); })
+        .attr("width", function(d) { return x5(d[1]) - x5(d[0]); })
+        .attr("fill", function(d) { return colors_vote(d[0]); });
+
+    g_legend2.append("text")
+        .attr("class", "caption")
+        .attr("x", x5.range()[0])
+        .attr("y", -6)
+        .attr("fill", "#000")
+        .attr("text-anchor", "start")
+        .attr("font-weight", "bold")
+        .text("votes par Densité / communes (%) ");
+    g_legend2.call(d3.axisBottom(x5)
+        .tickSize(13)
+        .tickFormat(function(x) { return x })
+        .tickValues(colors_vote.domain()))
+        .select(".domain")
+        .remove();
     })
    </script>
 </body>
