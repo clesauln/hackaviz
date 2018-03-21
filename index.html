@@ -48,7 +48,12 @@
         #block_chart_1 svg:first-child , #block_chart_2 svg:first-child {
              float:left
         }
-
+        text.caption {
+            font-size: 1.3em;
+        }
+        g.tick {
+            font-size: 1.3em;
+        }
     </style>
 </head>
 
@@ -76,9 +81,11 @@
             <svg height=600 width=850 id="chart_densite_votes_lepen"></svg>
             <svg height=600 width=850 id="chart_densite_votes_macron"></svg>
             <svg id="legend_2" width="860" height="500"></svg>
-
     </div> 
-
+    <div id="block_chart_3">
+        <svg height=500 width=850 id="routes_territoire"></svg>
+        <svg height=500 width=850 id="transports_perimetre"></svg>
+    </div>
     <script>
     var year = 2014;
     var svg = d3.select("svg"),
@@ -209,23 +216,33 @@
                 return data.value
             })]);
 
+
+        gchart_1.append("text")
+            .attr("x", 210)
+            .attr("y", 570)
+            .style("text-anchor", "middle")
+            .text("Age");
+        gchart_1.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height1 / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Votes %");
         gchart_1.append("g")
             .attr("class", "axis axis--x")
             .attr("transform", "translate(2,"+ 500+" )")
-            .call(d3.axisBottom(x1));
-        
+            .call(d3.axisBottom(x1))
+            ;
+      
         var yAxis = d3.axisLeft()
                 .scale(y1);
 
         gchart_1.append("g")
             .attr("class", "axis axis--y")
             .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", "0.71em")
-            .attr("text-anchor", "end");
-        
+             
+
         gchart_1.append("text")
         .attr("class", "caption")
         .attr("x", x1.range()[0])
